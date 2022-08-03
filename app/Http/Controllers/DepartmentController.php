@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class DepartmentController extends Controller
 {
@@ -25,11 +26,33 @@ class DepartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('departments.index', [
-            'departments' => Department::all()
-        ]);
+        if ($request->ajax()) {
+            $departments = Department::all();
+
+            return DataTables::of($departments)
+                ->addIndexColumn()
+                ->addColumn('action', function($row) {
+                    return '
+                    <a href="' . route("departments.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
+                        <i class="fas fa-pen"></i>
+                    </a>
+
+                    <form class="d-inline" action="' . route("departments.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('departments.index');
     }
 
     /**

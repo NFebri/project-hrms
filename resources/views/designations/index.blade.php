@@ -44,24 +44,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($designations as $designation)
-                                <tr>
-                                    <td>{{ $designation->name }}</td>
-                                    <td>
-                                        <a href="{{ route('designations.edit', $designation->id) }}" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __('Edit') }}">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-
-                                        <form class="d-inline" action="{{ route('designations.destroy', $designation->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete') }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -83,6 +65,24 @@
 <script src="{{ asset('assets/js/page/modules-datatables.js') }}"></script>
 
 <script>
-    $("#designations-table").dataTable();
+    const designationDataTables = $("#designations-table").dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('designations.index') }}"
+        },
+        columns: [
+            {
+                data: 'name',
+                name: 'name'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                orderable: false,
+                searchable: false
+            },
+        ]
+    });
 </script>
 @endsection

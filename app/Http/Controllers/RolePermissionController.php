@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Yajra\DataTables\DataTables;
 
 class RolePermissionController extends Controller
 {
@@ -49,11 +50,33 @@ class RolePermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('roles-permissions.index', [
-            'roles' => Role::all()
-        ]);
+        if ($request->ajax()) {
+            $roles = Role::all();
+
+            return DataTables::of($roles)
+                ->addIndexColumn()
+                ->addColumn('action', function($row) {
+                    return '
+                    <a href="' . route("roles-permissions.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
+                        <i class="fas fa-pen"></i>
+                    </a>
+
+                    <form class="d-inline" action="' . route("roles-permissions.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('roles-permissions.index');
     }
 
     /**

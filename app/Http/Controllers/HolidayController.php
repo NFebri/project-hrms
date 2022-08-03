@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Holiday;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class HolidayController extends Controller
 {
@@ -12,11 +13,29 @@ class HolidayController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('holidays.index', [
-            'holidays' => Holiday::all()
-        ]);
+        if ($request->ajax()) {
+            $holidays = Holiday::all();
+
+            return DataTables::of($holidays)
+                ->addIndexColumn()
+                ->addColumn('action', function($row) {
+                    return '
+                    <form class="d-inline" action="' . route("holidays.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('holidays.index');
     }
 
     /**

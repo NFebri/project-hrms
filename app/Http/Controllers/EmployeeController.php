@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Yajra\DataTables\DataTables;
 
 class EmployeeController extends Controller
 {
@@ -30,11 +31,36 @@ class EmployeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('employees.index', [
-            'employees' => Employee::all()
-        ]);
+        if ($request->ajax()) {
+            $employees = Employee::all();
+
+            return DataTables::of($employees)
+                ->addIndexColumn()
+                ->addColumn('name', function($row) {
+                    $row->user->name;
+                })
+                ->addColumn('action', function($row) {
+                    return '
+                    <a href="' . route("employees.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
+                        <i class="fas fa-pen"></i>
+                    </a>
+
+                    <form class="d-inline" action="' . route("employees.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('employees.index');
     }
 
     /**

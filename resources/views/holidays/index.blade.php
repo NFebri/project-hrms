@@ -36,7 +36,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped" id="departments-table">
+                        <table class="table table-striped" id="holidays-table">
                             <thead>
                                 <tr>
                                     <th>{{ __('Date') }}</th>
@@ -45,25 +45,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($holidays as $holiday)
-                                <tr>
-                                    <td>{{ $holiday->date }}</td>
-                                    <td>{{ $holiday->occassion }}</td>
-                                    <td>
-                                        {{-- <a href="{{ route('holidays.edit', $holiday->id) }}" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __('Edit') }}">
-                                            <i class="fas fa-pen"></i>
-                                        </a> --}}
-
-                                        <form class="d-inline" action="{{ route('holidays.destroy', $holiday->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete') }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -85,6 +66,28 @@
 <script src="{{ asset('assets/js/page/modules-datatables.js') }}"></script>
 
 <script>
-    $("#departments-table").dataTable();
+    const holidayDataTables = $("#holidays-table").dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('holidays.index') }}"
+        },
+        columns: [
+            {
+                data: 'date',
+                name: 'date'
+            },
+            {
+                data: 'occassion',
+                name: 'occassion'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                orderable: false,
+                searchable: false
+            },
+        ]
+    });
 </script>
 @endsection

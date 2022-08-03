@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Designation;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class DesignationController extends Controller
 {
@@ -25,11 +26,33 @@ class DesignationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('designations.index', [
-            'designations' => Designation::all()
-        ]);
+        if ($request->ajax()) {
+            $designations = Designation::all();
+
+            return DataTables::of($designations)
+                ->addIndexColumn()
+                ->addColumn('action', function($row) {
+                    return '
+                    <a href="' . route("designations.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
+                        <i class="fas fa-pen"></i>
+                    </a>
+
+                    <form class="d-inline" action="' . route("designations.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('designations.index');
     }
 
     /**
