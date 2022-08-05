@@ -42,7 +42,7 @@
                     <form>
                         <div class="form-row">
                             <div class="form-group col-md-4">
-                                <label>{{ __('Employee') }}</label>
+                                <label>{{ __('Name') }}</label>
                                 <select name="user_id" class="form-control form-control-sm form-rounded" id="user_id">
                                     @foreach ($employees as $employee)
                                         <option value="{{ $employee->user_id }}"{{ $employee->user_id == auth()->user()->id ? ' selected' : '' }}>{{ $employee->user->name }}</option>
@@ -64,7 +64,7 @@
 
                             <div class="form-group col-md-4">
                                 <label>&nbsp;</label><br>
-                                <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="filterAttendance()">{{ __('Apply') }}</button>
                             </div>
                         </div>
                     </form>
@@ -77,20 +77,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($attendances as $attendance)
-                                    <tr>
-                                        <td>{{ $attendance['date'] }}</td>
-                                        <td>
-                                            @if ($attendance['holiday'])
-                                                <span class="badge badge-info">{{ __('holiday') }}</span>
-                                            @elseif ($attendance['attendance'])
-                                                <span class="badge badge-primary">{{ __('present') }}</span>
-                                            @else
-                                                <span class="badge badge-danger">{{ __('absent') }}</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -111,6 +97,38 @@
 
 <!-- Page Specific JS File -->
 <script src="{{ asset('assets/js/page/modules-datatables.js') }}"></script>
+
+<script>
+    var atendanceDataTables = $("#atendances-table").DataTable({
+        processing: true,
+        serverSide: true,
+        paging: false,
+        searching: false,
+        info: false,
+        ajax: {
+            url: "{{ route('attendances.index') }}",
+            data: function (params) {
+                params.user_id = $('#user_id').val(),
+                params.date_range = $('#date_range').val()
+            }
+        },
+        columns: [
+            {
+                data: 'date',
+                name: 'date'
+            },
+            {
+                data: 'status',
+                name: 'status'
+            },
+        ]
+    });
+
+    function filterAttendance() {
+        console.log('there');
+        atendanceDataTables.ajax.reload();
+    }
+</script>
 
 <script>
     $('.daterange-cus').daterangepicker({
