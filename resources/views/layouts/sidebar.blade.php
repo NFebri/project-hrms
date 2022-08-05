@@ -46,8 +46,8 @@
                 </a>
             </li>
 
-            <li>
-                <a class="nav-link" href="#">
+            <li class="{{ request()->routeIs('attendances.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('attendances.index') }}">
                     <i class="fas fa-user-clock"></i>
                     <span>{{ __('Atendance') }}</span>
                 </a>

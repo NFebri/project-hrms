@@ -13,4 +13,10 @@ class Holiday extends Model
         'date',
         'occassion'
     ];
+
+    public static function getHolidayByDate($start_date, $end_date)
+    {
+        return self::whereBetween('date', [$start_date, $end_date])
+            ->get();
+    }
 }

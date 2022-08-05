@@ -15,4 +15,11 @@ class Attendance extends Model
         'work_from',
         'is_late'
     ];
+
+    public static function getAttendanceByDate($start_date, $end_date, $user_id)
+    {
+        return self::where('user_id', $user_id)
+            ->whereBetween('clock_in_time', [$start_date, $end_date])
+            ->get();
+    }
 }
