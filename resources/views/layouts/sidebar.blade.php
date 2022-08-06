@@ -53,6 +53,13 @@
                 </a>
             </li>
 
+            <li class="{{ request()->routeIs('leaves.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('leaves.index') }}">
+                    <i class="fas fa-running"></i>
+                    <span>{{ __('Leave') }}</span>
+                </a>
+            </li>
+
             <li class="menu-header">{{ __('Settings') }}</li>
 
             <li class="{{ request()->routeIs('roles-permissions.*') ? 'active' : '' }}">

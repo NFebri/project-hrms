@@ -42,6 +42,9 @@ class RolePermissionSeeder extends Seeder
             'holidays-create',
             'holidays-edit',
             'holidays-delete',
+            'leaves-view',
+            'leaves-create',
+            'leaves-approve-reject',
         ];
 
         // create permissions

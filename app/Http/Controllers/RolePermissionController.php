@@ -38,6 +38,10 @@ class RolePermissionController extends Controller
                 'name' => __('Holidays'),
                 'permissions' => ['holidays-view', 'holidays-create', 'holidays-edit', 'holidays-delete']
             ],
+            'leave' => [
+                'name' => __('Leaves'),
+                'permissions' => ['leaves-view', 'leaves-create', 'leaves-approve-reject']
+            ],
             'role' => [
                 'name' => __('Roles Permissions'),
                 'permissions' => ['roles-permissions-view', 'roles-permissions-create', 'roles-permissions-edit', 'roles-permissions-delete']

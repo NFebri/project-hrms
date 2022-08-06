@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             DesignationSeeder::class,
             EmployeeSeeder::class,
-            AttendanceSettingSeeder::class
+            AttendanceSettingSeeder::class,
+            LeaveTypeSeeder::class
         ]);
         // \App\Models\User::factory(10)->create();
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('holidays', HolidayController::class);
 
     Route::resource('attendances', AttendanceController::class);
+
+    Route::get('leaves/{leave:id}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::get('leaves/{leave:id}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
+    Route::resource('leaves', LeaveController::class);
 
     Route::resource('roles-permissions', RolePermissionController::class);
 });
