@@ -29,10 +29,12 @@
             <div class="card">
                 <div class="card-header justify-content-between">
                     <h4>{{ __('All Designations') }}</h4>
-                    <a href="{{ route('designations.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        {{ __('New Designation') }}
-                    </a>
+                    @can('designations-create')
+                        <a href="{{ route('designations.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            {{ __('New Designation') }}
+                        </a>
+                    @endcan
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

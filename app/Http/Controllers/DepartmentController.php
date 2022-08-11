@@ -34,19 +34,27 @@ class DepartmentController extends Controller
             return DataTables::of($departments)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
-                    return '
-                    <a href="' . route("departments.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
-                        <i class="fas fa-pen"></i>
-                    </a>
+                    $action = '';
+                    if (auth()->user()->can('departments-edit')) {
+                        $action .= '
+                        <a href="' . route("departments.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
+                            <i class="fas fa-pen"></i>
+                        </a>';
+                    }
 
-                    <form class="d-inline" action="' . route("departments.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                        ' . csrf_field() . '
-                        ' . method_field("DELETE") . '
-                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
-                    ';
+                    if (auth()->user()->can('departments-delete')) {
+                        $action .= '
+                        <form class="d-inline" action="' . route("departments.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
+                            ' . csrf_field() . '
+                            ' . method_field("DELETE") . '
+                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        ';
+                    }
+
+                    return $action;
                 })
                 ->rawColumns(['action'])
                 ->make(true);

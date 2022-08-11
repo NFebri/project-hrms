@@ -42,15 +42,17 @@ class LeaveController extends Controller
                 ->addColumn('action', function($row) {
                     $action = '';
                     if ($row->status == 'pending') {
-                        $action .= '
-                        <a href="' . route("leaves.approve", $row->id) . '" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Approve") . '">
-                            <i class="fas fa-check"></i>
-                        </a>
+                        if (auth()->user()->can('leaves-approve-reject')) {
+                            $action .= '
+                            <a href="' . route("leaves.approve", $row->id) . '" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Approve") . '">
+                                <i class="fas fa-check"></i>
+                            </a>
 
-                        <a href="' . route("leaves.reject", $row->id) . '" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Reject") . '">
-                            <i class="fas fa-times"></i>
-                        </a>
-                        ';
+                            <a href="' . route("leaves.reject", $row->id) . '" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Reject") . '">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            ';
+                        }
                     } else {
                         $action .= $row->status;
                     }

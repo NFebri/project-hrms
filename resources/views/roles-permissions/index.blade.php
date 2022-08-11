@@ -29,10 +29,12 @@
             <div class="card">
                 <div class="card-header justify-content-between">
                     <h4>{{ __('All Roles Permissions') }}</h4>
-                    <a href="{{ route('roles-permissions.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        {{ __('New Roles') }}
-                    </a>
+                    @can('roles-permissions-create')
+                        <a href="{{ route('roles-permissions.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            {{ __('New Roles') }}
+                        </a>
+                    @endcan
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
