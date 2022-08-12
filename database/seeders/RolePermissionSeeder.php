@@ -54,9 +54,20 @@ class RolePermissionSeeder extends Seeder
         }
 
         //create roles and assign existing permissions
-        $role = Role::create(['name' => 'admin']);
-        $role->syncPermissions(Permission::pluck('id','id')->all());
+        $admin_role = Role::create(['name' => 'admin']);
+        $employee_role = Role::create(['name' => 'employee']);
 
-        User::find(1)->assignRole([$role->id]);
+        $admin_role->syncPermissions(Permission::pluck('id','id')->all());
+
+        $employee_role->givePermissionTo([
+            'holidays-view',
+            'attendance-view',
+            'leaves-view',
+            'leaves-create',
+        ]);
+
+        User::find(1)->assignRole([$admin_role->id]);
+
+        User::find(2)->assignRole([$employee_role->id]);
     }
 }
