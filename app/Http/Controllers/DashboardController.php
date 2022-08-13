@@ -12,7 +12,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user_clock_in = Attendance::where('id', auth()->user()->id)
+        $user_clock_in = Attendance::where('user_id', auth()->user()->id)
             ->whereDate('clock_in_time', Carbon::now()->format('Y-m-d'))
             ->first();
 
