@@ -90,19 +90,27 @@
                     <h4>Attendance</h4>
                 </div>
                 <div class="card-body">
-                    @if ($user_clock_in)
-                    <div class="alert alert-success" role="alert">
-                        {{ __('you are present') }}
-                    </div>
-                    @else
-                    <form action="{{ route('attendances.store') }}" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="work-from">Work from</label>
-                            <input type="text" name="work_from" class="form-control form-rounded" id="work-from" value="office">
+                    @if (!isset($user_clock_in->clock_out))
+                        <div class="alert alert-success" role="alert">
+                            {{ __('you are present') }}
                         </div>
-                        <button type="submit" class="btn btn-primary">Clock-in</button>
-                    </form>
+                        <form action="{{ route('attendances.update', $user_clock_in->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-primary">{{ __('Clock-out') }}</button>
+                        </form>
+                    @elseif(isset($user_clock_in->clock_out))
+                        <p>Clock-in : {{ $user_clock_in->clock_in }}</p>
+                        <p>Clock-out : {{ $user_clock_in->clock_out }}</p>
+                    @else
+                        <form action="{{ route('attendances.store') }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="work-from">Work from</label>
+                                <input type="text" name="work_from" class="form-control form-rounded" id="work-from" value="office">
+                            </div>
+                            <button type="submit" class="btn btn-primary">{{ __('Clock-in') }}</button>
+                        </form>
                     @endif
                 </div>
             </div>

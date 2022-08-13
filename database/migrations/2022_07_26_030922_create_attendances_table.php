@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->dateTime('clock_in_time');
+            $table->dateTime('clock_in');
+            $table->dateTime('clock_out')->nullable();
             $table->string('work_from');
             $table->boolean('is_late');
             $table->timestamps();

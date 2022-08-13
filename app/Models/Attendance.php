@@ -11,7 +11,8 @@ class Attendance extends Model
 
     protected $fillable = [
         'user_id',
-        'clock_in_time',
+        'clock_in',
+        'clock_out',
         'work_from',
         'is_late'
     ];
@@ -19,7 +20,7 @@ class Attendance extends Model
     public static function getAttendanceByDate($start_date, $end_date, $user_id)
     {
         return self::where('user_id', $user_id)
-            ->whereBetween('clock_in_time', [$start_date, $end_date])
+            ->whereBetween('clock_in', [$start_date, $end_date])
             ->get();
     }
 }

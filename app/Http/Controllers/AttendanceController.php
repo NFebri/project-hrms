@@ -113,7 +113,7 @@ class AttendanceController extends Controller
     {
         Attendance::create([
             'user_id' => auth()->user()->id,
-            'clock_in_time' => Carbon::now(),
+            'clock_in' => Carbon::now(),
             'work_from' => $request->work_from,
             'is_late' => false
         ]);
@@ -152,7 +152,11 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, Attendance $attendance)
     {
-        //
+        $attendance->update([
+            'clock_out' => Carbon::now()
+        ]);
+
+        return redirect()->back()->with('success', __('Clock-out successfully!'));
     }
 
     /**
