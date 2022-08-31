@@ -90,7 +90,7 @@
                     <h4>Attendance</h4>
                 </div>
                 <div class="card-body">
-                    @if (!isset($user_clock_in->clock_out))
+                    @if (isset($user_clock_in) && !isset($user_clock_in->clock_out))
                         <div class="alert alert-success" role="alert">
                             {{ __('you are present') }}
                         </div>
