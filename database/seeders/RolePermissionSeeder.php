@@ -22,36 +22,35 @@ class RolePermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'employees-view',
-            'employees-create',
-            'employees-edit',
-            'employees-delete',
-            'departments-view',
-            'departments-create',
-            'departments-edit',
-            'departments-delete',
-            'roles-permissions-view',
-            'roles-permissions-create',
-            'roles-permissions-edit',
-            'roles-permissions-delete',
-            'designations-view',
-            'designations-create',
-            'designations-edit',
-            'designations-delete',
-            'holidays-view',
-            'holidays-create',
-            'holidays-edit',
-            'holidays-delete',
-            'attendance-view',
-            'leaves-view',
-            'leaves-create',
-            'leaves-approve-reject',
+            ['name' => 'employees-list', 'guard_name' => 'web', 'general_name' => 'View the list of employees'],
+            ['name' => 'employees-create', 'guard_name' => 'web', 'general_name' => 'Create employees'],
+            ['name' => 'employees-edit', 'guard_name' => 'web', 'general_name' => 'Edit employees'],
+            ['name' => 'employees-delete', 'guard_name' => 'web', 'general_name' => 'Delete employees'],
+            ['name' => 'departments-list', 'guard_name' => 'web', 'general_name' => 'View the list of departments'],
+            ['name' => 'departments-create', 'guard_name' => 'web', 'general_name' => 'Create departments'],
+            ['name' => 'departments-edit', 'guard_name' => 'web', 'general_name' => 'Edit departments'],
+            ['name' => 'departments-delete', 'guard_name' => 'web', 'general_name' => 'Delete departments'],
+            ['name' => 'roles-list', 'guard_name' => 'web', 'general_name' => 'View the list of roles'],
+            ['name' => 'roles-create', 'guard_name' => 'web', 'general_name' => 'Create roles'],
+            ['name' => 'roles-edit', 'guard_name' => 'web', 'general_name' => 'Edit roles'],
+            ['name' => 'roles-delete', 'guard_name' => 'web', 'general_name' => 'Delete roles'],
+            ['name' => 'designations-list', 'guard_name' => 'web', 'general_name' => 'View the list of designations'],
+            ['name' => 'designations-create', 'guard_name' => 'web', 'general_name' => 'Create designations'],
+            ['name' => 'designations-edit', 'guard_name' => 'web', 'general_name' => 'Edit designations'],
+            ['name' => 'designations-delete', 'guard_name' => 'web', 'general_name' => 'Delete designations'],
+            ['name' => 'holidays-list', 'guard_name' => 'web', 'general_name' => 'View the list of holidays'],
+            ['name' => 'holidays-create', 'guard_name' => 'web', 'general_name' => 'Create holidays'],
+            ['name' => 'holidays-edit', 'guard_name' => 'web', 'general_name' => 'Edit holidays'],
+            ['name' => 'holidays-delete', 'guard_name' => 'web', 'general_name' => 'Delete holidays'],
+            ['name' => 'attendance-list', 'guard_name' => 'web', 'general_name' => 'View the list of Attendances'],
+            ['name' => 'attendance-setting', 'guard_name' => 'web', 'general_name' => 'Setting attendance'],
+            ['name' => 'leaves-list', 'guard_name' => 'web', 'general_name' => 'View the list of leaves'],
+            ['name' => 'leaves-create', 'guard_name' => 'web', 'general_name' => 'Create leaves'],
+            ['name' => 'leaves-approve-reject', 'guard_name' => 'web', 'general_name' => 'Approve or reject leaves'],
         ];
 
         // create permissions
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        Permission::insert($permissions);
 
         //create roles and assign existing permissions
         $admin_role = Role::create(['name' => 'admin']);
@@ -60,9 +59,9 @@ class RolePermissionSeeder extends Seeder
         $admin_role->syncPermissions(Permission::pluck('id','id')->all());
 
         $employee_role->givePermissionTo([
-            'holidays-view',
-            'attendance-view',
-            'leaves-view',
+            'holidays-list',
+            'attendance-list',
+            'leaves-list',
             'leaves-create',
         ]);
 

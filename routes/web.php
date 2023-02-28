@@ -28,7 +28,6 @@ Route::get('/', function () {
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    Route::get('departments/quick-create', [DepartmentController::class, 'quickCreate'])->name('departments.quick-create');
     Route::resource('departments', DepartmentController::class);
 
     Route::resource('designations', DesignationController::class);
@@ -38,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('holidays', HolidayController::class);
 
     Route::resource('attendances', AttendanceController::class);
+    Route::get('attendance/setting', [AttendanceController::class, 'setting'])->name('attendance.setting');
 
     Route::get('leaves/{leave:id}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
     Route::get('leaves/{leave:id}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');

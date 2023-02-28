@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepartmentRequest;
 use App\Models\Department;
+use App\Services\DepartmentService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class DepartmentController extends Controller
 {
+    private $departmentService;
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +18,10 @@ class DepartmentController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:departments-view', ['only' => ['index','show']]);
+        // initialize service
+        $this->departmentService = new DepartmentService();
+        // initialze middleware
+        $this->middleware('permission:departments-list', ['only' => ['index','show']]);
         $this->middleware('permission:departments-create', ['only' => ['create','store']]);
         $this->middleware('permission:departments-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:departments-delete', ['only' => ['destroy']]);
@@ -29,35 +35,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $departments = Department::all();
-
-            return DataTables::of($departments)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if (auth()->user()->can('departments-edit')) {
-                        $action .= '
-                        <a href="' . route("departments.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
-                            <i class="fas fa-pen"></i>
-                        </a>';
-                    }
-
-                    if (auth()->user()->can('departments-delete')) {
-                        $action .= '
-                        <form class="d-inline" action="' . route("departments.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        ';
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->departmentService->getDatatables();
         }
 
         return view('departments.index');
@@ -79,12 +57,8 @@ class DepartmentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DepartmentRequest $request)
     {
-        $request->validate([
-            'name' => 'required'
-        ]);
-
         Department::create($request->all());
 
         return redirect()->route('departments.index')->with('success', __('Department was created!'));
@@ -121,12 +95,8 @@ class DepartmentController extends Controller
      * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Department $department)
+    public function update(DepartmentRequest $request, Department $department)
     {
-        $request->validate([
-            'name' => 'required'
-        ]);
-
         $department->update($request->all());
 
         return redirect()->route('departments.index')->with('success', __('Department was updated!'));
@@ -143,15 +113,5 @@ class DepartmentController extends Controller
         $department->delete();
 
         return redirect()->route('departments.index')->with('success', __('Department was deleted!'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function quickCreate()
-    {
-        return view('departments.quick-create');
     }
 }

@@ -18,8 +18,8 @@
 @section('content')
 <x-section-main>
     <x-slot name="section_header_title">
-        <h1>{{ __('Roles & Permissions') }}</h1>
-        <x-section-header-breadcrumb :breadcrumb="['Settings', 'Roles Permissions', 'Edit']" />
+        <h1>{{ __('Attendance Setting') }}</h1>
+        <x-section-header-breadcrumb :breadcrumb="['Settings', 'Attendance Setting']" />
     </x-slot>
 
     {{-- <h2 class="section-title">DataTables</h2>
@@ -31,54 +31,49 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h4>{{ __('Form Roles Permissions') }}</h4>
-                </div>
                 <div class="card-body">
-                    <form action="{{ route('roles-permissions.update', $role->id) }}" method="POST">
+                    <form action="#" method="POST">
                         @csrf
-                        @method('PUT')
                         <div class="form-group">
-                            <label>{{ __('Name') }}</label>
+                            <label>{{ __('Office Start Time') }}</label>
                             <input
                                 type="text"
-                                name="name"
-                                value="{{ old('name') ?? $role->name }}"
+                                name="office_start_time"
+                                value="{{ old('office_start_time') ?? $attendance_setting->office_start_time }}"
                                 @class([
                                     'form-control',
+                                    'timepicker',
                                     'form-rounded',
-                                    'is-invalid' => $errors->has('name')
+                                    'is-invalid' => $errors->has('office_start_time')
                                 ])
-                                required
                             >
-                            @error('name')
+                            @error('office_start_time')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
                             @enderror
                         </div>
 
-                        @foreach ($permissions_groups as $permission_group)
                         <div class="form-group">
-                            <label for="">{{ $permission_group['name'] }}</label><br>
-                            @foreach ($permissions as $permission)
-                                @if (in_array($permission->name, $permission_group['permissions']))
-                                <div class="form-check form-check-inline">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="permissions[]"
-                                        id="{{ $permission->name }}"
-                                        value="{{ $permission->id }}"
-                                        {{ in_array($permission->id, $rolePermissions) ? 'checked' : '' }}
-                                    >
-                                    <label class="form-check-label" for="{{ $permission->general_name }}">{{ $permission->general_name }}</label>
-                                </div>
-                                @endif
-                            @endforeach
+                            <label>{{ __('Office End Time') }}</label>
+                            <input
+                                type="text"
+                                name="office_end_time"
+                                value="{{ old('office_end_time') ?? $attendance_setting->office_end_time }}"
+                                @class([
+                                    'form-control',
+                                    'timepicker',
+                                    'form-rounded',
+                                    'is-invalid' => $errors->has('office_end_time')
+                                ])
+                            >
+                            @error('office_end_time')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
-                        @endforeach
-                        <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                     </form>
                 </div>
             </div>

@@ -2,12 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\HolidayRequest;
 use App\Models\Holiday;
+use App\Services\HolidayService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class HolidayController extends Controller
 {
+    private $holidayService;
+    function __construct()
+    {
+        // initialize service
+        $this->holidayService = new HolidayService();
+        // initialze middleware
+        $this->middleware('permission:holidays-list', ['only' => ['index','show']]);
+        $this->middleware('permission:holidays-create', ['only' => ['create','store']]);
+        $this->middleware('permission:holidays-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:holidays-delete', ['only' => ['destroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,28 +30,7 @@ class HolidayController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $holidays = Holiday::all();
-
-            return DataTables::of($holidays)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if (auth()->user()->can('holidays-delete')) {
-                        $action .= '
-                        <form class="d-inline" action="' . route("holidays.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        ';
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->holidayService->getDatatables();
         }
 
         return view('holidays.index');
@@ -59,13 +52,8 @@ class HolidayController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(HolidayRequest $request)
     {
-        $request->validate([
-            'date' => 'required',
-            'occassion' => 'required'
-        ]);
-
         Holiday::create($request->all());
 
         return redirect()->route('holidays.index')->with('success', __('Holiday was created!'));

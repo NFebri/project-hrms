@@ -33,5 +33,19 @@ class EmployeeSeeder extends Seeder
             'join_date' => '2022-01-01',
             'exit_date' => null
         ]);
+
+        $user2 = User::find(2);
+
+        Employee::create([
+            'user_id' => $user2->id,
+            'department_id' => $department->id,
+            'designation_id' => $designation->id,
+            'employee_code' => 'EMP-002',
+            'gender' => 'male',
+            'address' => 'Karanganyar',
+            'salary' => 3500000,
+            'join_date' => '2022-01-01',
+            'exit_date' => null
+        ]);
     }
 }

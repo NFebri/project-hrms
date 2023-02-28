@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DesignationRequest;
 use App\Models\Designation;
+use App\Services\DesignationService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class DesignationController extends Controller
 {
+    private $designationService;
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +18,10 @@ class DesignationController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:designations-view', ['only' => ['index','show']]);
+        // initialize service
+        $this->designationService = new DesignationService();
+        // initialze middleware
+        $this->middleware('permission:designations-list', ['only' => ['index','show']]);
         $this->middleware('permission:designations-create', ['only' => ['create','store']]);
         $this->middleware('permission:designations-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:designations-delete', ['only' => ['destroy']]);
@@ -29,35 +35,7 @@ class DesignationController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $designations = Designation::all();
-
-            return DataTables::of($designations)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if (auth()->user()->can('designations-edit')) {
-                        $action .= '
-                        <a href="' . route("designations.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
-                            <i class="fas fa-pen"></i>
-                        </a>';
-                    }
-
-                    if (auth()->user()->can('designations-delete')) {
-                        $action .= '
-                        <form class="d-inline" action="' . route("designations.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        ';
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->designationService->getDatatables();
         }
 
         return view('designations.index');
@@ -79,12 +57,8 @@ class DesignationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DesignationRequest $request)
     {
-        $request->validate([
-            'name' => 'required'
-        ]);
-
         Designation::create($request->all());
 
         return redirect()->route('designations.index')->with('success', __('Designation was created!'));
@@ -121,12 +95,8 @@ class DesignationController extends Controller
      * @param  \App\Models\Designation  $designation
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Designation $designation)
+    public function update(DesignationRequest $request, Designation $designation)
     {
-        $request->validate([
-            'name' => 'required'
-        ]);
-
         $designation->update($request->all());
 
         return redirect()->route('designations.index')->with('success', __('Designation was updated!'));

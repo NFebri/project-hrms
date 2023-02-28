@@ -70,7 +70,7 @@
                                         id="{{ $permission->name }}"
                                         value="{{ $permission->id }}"
                                     >
-                                    <label class="form-check-label" for="{{ $permission->name }}">{{ $permission->name }}</label>
+                                    <label class="form-check-label" for="{{ $permission->general_name }}">{{ $permission->general_name }}</label>
                                 </div>
                                 @endif
                             @endforeach

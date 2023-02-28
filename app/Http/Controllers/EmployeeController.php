@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EmployeeRequest;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
 use App\Models\User;
+use App\Services\EmployeeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -13,6 +15,7 @@ use Yajra\DataTables\DataTables;
 
 class EmployeeController extends Controller
 {
+    private $employeeService;
     /**
      * Display a listing of the resource.
      *
@@ -20,7 +23,10 @@ class EmployeeController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:employees-view', ['only' => ['index','show']]);
+        // initialize service
+        $this->employeeService = new EmployeeService();
+        // initialze middleware
+        $this->middleware('permission:employees-list', ['only' => ['index','show']]);
         $this->middleware('permission:employees-create', ['only' => ['create','store']]);
         $this->middleware('permission:employees-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:employees-delete', ['only' => ['destroy']]);
@@ -34,40 +40,8 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $employees = Employee::all();
-
-            return DataTables::of($employees)
-                ->addIndexColumn()
-                ->addColumn('name', function($row) {
-                    return $row->user->name;
-                })
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if (auth()->user()->can('employees-edit')) {
-                        $action .= '
-                        <a href="' . route("employees.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
-                            <i class="fas fa-pen"></i>
-                        </a>';
-                    }
-
-                    if (auth()->user()->can('employees-delete')) {
-                        $action .= '
-                        <form class="d-inline" action="' . route("employees.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        ';
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->employeeService->getDatatables();
         }
-
         return view('employees.index');
     }
 
@@ -91,44 +65,12 @@ class EmployeeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
-        $request->validate([
-            'employee_code' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'gender' => 'required',
-            'department_id' => 'required',
-            'designation_id' => 'required',
-            'role' => 'required',
-            'address' => 'required',
-            'join_date' => 'required',
-            'salary' => 'required|numeric',
-        ]);
+        $this->employeeService->createNewEmployee($request);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
-
-        $user->assignRole($request->role);
-
-        Employee::create([
-            'user_id' => $user->id,
-            'department_id' => $request->department_id,
-            'designation_id' => $request->designation_id,
-            'employee_code' => $request->employee_code,
-            'gender' => $request->gender,
-            'address' => $request->address,
-            'salary' => $request->salary,
-            'join_date' => $request->join_date,
-            'exit_date' => $request->exit_date
-        ]);
-
-        return redirect()->route('employees.index')
-            ->with('success', __('Employee was created!'));
+        return to_route('employees.index')
+            ->withSuccess(__('Employee was created!'));
     }
 
     /**
@@ -166,41 +108,11 @@ class EmployeeController extends Controller
      * @param  \App\Models\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employee $employee)
+    public function update(EmployeeRequest $request, Employee $employee)
     {
-        $request->validate([
-            'employee_code' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'gender' => 'required',
-            'department_id' => 'required',
-            'designation_id' => 'required',
-            'role' => 'required',
-            'address' => 'required',
-            'join_date' => 'required',
-            'salary' => 'required|numeric',
-        ]);
+        $this->employeeService->updateEmployee($request, $employee);
 
-        $employee->user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $employee->user->password
-        ]);
-
-        $employee->user->syncRoles($request->role);
-
-        $employee->update([
-            'department_id' => $request->department_id,
-            'designation_id' => $request->designation_id,
-            'employee_code' => $request->employee_code,
-            'gender' => $request->gender,
-            'address' => $request->address,
-            'salary' => $request->salary,
-            'join_date' => $request->join_date,
-            'exit_date' => $request->exit_date
-        ]);
-
-        return redirect()->route('employees.index')
+        return to_route('employees.index')
             ->with('success', __('Employee was updated!'));
     }
 

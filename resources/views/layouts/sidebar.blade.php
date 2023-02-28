@@ -18,7 +18,7 @@
 
             <li class="menu-header">{{ __('Master') }}</li>
 
-            @can('departments-view')
+            @can('departments-list')
                 <li class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('departments.index') }}">
                         <i class="fas fa-building"></i>
@@ -27,7 +27,7 @@
                 </li>
             @endcan
 
-            @can('designations-view')
+            @can('designations-list')
                 <li class="{{ request()->routeIs('designations.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('designations.index') }}">
                         <i class="fas fa-user-tie"></i>
@@ -36,7 +36,7 @@
                 </li>
             @endcan
 
-            @can('employees-view')
+            @can('employees-list')
                 <li class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('employees.index') }}">
                         <i class="fas fa-users"></i>
@@ -45,7 +45,7 @@
                 </li>
             @endcan
 
-            @can('holidays-view')
+            @can('holidays-list')
                 <li class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('holidays.index') }}">
                         <i class="fas fa-calendar"></i>
@@ -54,7 +54,7 @@
                 </li>
             @endcan
 
-            @can('attendance-view')
+            @can('attendance-list')
                 <li class="{{ request()->routeIs('attendances.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('attendances.index') }}">
                         <i class="fas fa-user-clock"></i>
@@ -63,7 +63,7 @@
                 </li>
             @endcan
 
-            @can('leaves-view')
+            @can('leaves-list')
                 <li class="{{ request()->routeIs('leaves.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('leaves.index') }}">
                         <i class="fas fa-running"></i>
@@ -74,11 +74,20 @@
 
             <li class="menu-header">{{ __('Settings') }}</li>
 
-            @can('roles-permissions-view')
+            @can('roles-list')
                 <li class="{{ request()->routeIs('roles-permissions.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('roles-permissions.index') }}">
                         <i class="fas fa-user-lock"></i>
                         <span>{{ __('Roles & Permissions') }}</span>
+                    </a>
+                </li>
+            @endcan
+
+            @can('attendance-setting')
+                <li class="{{ request()->routeIs('attendance.setting') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('attendance.setting') }}">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ __('Attendance Setting') }}</span>
                     </a>
                 </li>
             @endcan

@@ -121,10 +121,6 @@
                             <div class="form-group col-md-6">
                                 <label>
                                     {{ __('Department') }}
-                                    <button class="btn btn-icon icon-left btn-outline-primary btn-sm">
-                                        <i class="fas fa-cog"></i>
-                                        Setting
-                                    </button>
                                 </label>
                                 <select
                                     name="department_id"
@@ -150,10 +146,6 @@
                             <div class="form-group col-md-6">
                                 <label>
                                     {{ __('Designation') }}
-                                    <button class="btn btn-icon icon-left btn-outline-primary btn-sm">
-                                        <i class="fas fa-cog"></i>
-                                        Setting
-                                    </button>
                                 </label>
                                 <select
                                     name="designation_id"

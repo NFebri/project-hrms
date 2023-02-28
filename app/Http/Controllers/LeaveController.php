@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LeaveRequest;
 use App\Models\Leave;
 use App\Models\LeaveType;
+use App\Services\LeaveService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class LeaveController extends Controller
 {
+    private $leaveService;
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +19,10 @@ class LeaveController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:leaves-view', ['only' => ['index','show']]);
+        // initialize service
+        $this->leaveService = new LeaveService();
+        // initialze middleware
+        $this->middleware('permission:leaves-list', ['only' => ['index','show']]);
         $this->middleware('permission:leaves-create', ['only' => ['create','store']]);
         $this->middleware('permission:leaves-approve-reject', ['only' => ['approve','reject']]);
     }
@@ -29,38 +35,7 @@ class LeaveController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $leaves = Leave::latest()->get();
-
-            return DataTables::of($leaves)
-                ->addIndexColumn()
-                ->addColumn('employee', function($row) {
-                    return $row->user->name;
-                })
-                ->addColumn('leave_type', function($row) {
-                    return $row->leaveType->name;
-                })
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if ($row->status == 'pending') {
-                        if (auth()->user()->can('leaves-approve-reject')) {
-                            $action .= '
-                            <a href="' . route("leaves.approve", $row->id) . '" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Approve") . '">
-                                <i class="fas fa-check"></i>
-                            </a>
-
-                            <a href="' . route("leaves.reject", $row->id) . '" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="' . __("Reject") . '">
-                                <i class="fas fa-times"></i>
-                            </a>
-                            ';
-                        }
-                    } else {
-                        $action .= $row->status;
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->leaveService->getDatatables();
         }
 
         return view('leaves.index');
@@ -84,14 +59,8 @@ class LeaveController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(LeaveRequest $request)
     {
-        $request->validate([
-            'leave_type_id' => 'required',
-            'date' => 'required',
-            'reason' => 'required'
-        ]);
-
         Leave::create([
             'user_id' => auth()->user()->id,
             'leave_type_id' => $request->leave_type_id,
@@ -156,9 +125,7 @@ class LeaveController extends Controller
      */
     public function approve(Leave $leave)
     {
-        $leave->update([
-            'status' => 'approved'
-        ]);
+        $leave->setApprove();
 
         return redirect()->route('leaves.index')->with('success', __('Leave was approved!'));
     }
@@ -171,9 +138,7 @@ class LeaveController extends Controller
      */
     public function reject(Leave $leave)
     {
-        $leave->update([
-            'status' => 'rejected'
-        ]);
+        $leave->setReject();
 
         return redirect()->route('leaves.index')->with('success', __('Leave was rejected!'));
     }

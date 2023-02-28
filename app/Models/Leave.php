@@ -17,6 +17,18 @@ class Leave extends Model
         'reason'
     ];
 
+    public function setApprove()
+    {
+        $this->attributes['status'] = 'approved';
+        self::save();
+    }
+
+    public function setReject()
+    {
+        $this->attributes['status'] = 'rejected';
+        self::save();
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

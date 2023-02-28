@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\RolePermissionService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -9,6 +10,7 @@ use Yajra\DataTables\DataTables;
 
 class RolePermissionController extends Controller
 {
+    private $permissions_groups, $rolePermissionService;
     /**
      * Display a listing of the resource.
      *
@@ -16,40 +18,41 @@ class RolePermissionController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:roles-permissions-view', ['only' => ['index','show']]);
-        $this->middleware('permission:roles-permissions-create', ['only' => ['create','store']]);
-        $this->middleware('permission:roles-permissions-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:roles-permissions-delete', ['only' => ['destroy']]);
+        $this->rolePermissionService = new RolePermissionService();
+        $this->middleware('permission:roles-list', ['only' => ['index','show']]);
+        $this->middleware('permission:roles-create', ['only' => ['create','store']]);
+        $this->middleware('permission:roles-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:roles-delete', ['only' => ['destroy']]);
 
         $this->permissions_groups = [
             'department' => [
                 'name' => __('Departments'),
-                'permissions' => ['departments-view', 'departments-create', 'departments-edit', 'departments-delete']
+                'permissions' => ['departments-list', 'departments-create', 'departments-edit', 'departments-delete']
             ],
             'designation' => [
                 'name' => __('Designations'),
-                'permissions' => ['designations-view', 'designations-create', 'designations-edit', 'designations-delete']
+                'permissions' => ['designations-list', 'designations-create', 'designations-edit', 'designations-delete']
             ],
             'employee' => [
                 'name' => __('Employees'),
-                'permissions' => ['employees-view', 'employees-create', 'employees-edit', 'employees-delete']
+                'permissions' => ['employees-list', 'employees-create', 'employees-edit', 'employees-delete']
             ],
             'holiday' => [
                 'name' => __('Holidays'),
-                'permissions' => ['holidays-view', 'holidays-create', 'holidays-edit', 'holidays-delete']
+                'permissions' => ['holidays-list', 'holidays-create', 'holidays-edit', 'holidays-delete']
             ],
             
             'attendance' => [
                 'name' => __('Attendace'),
-                'permissions' => ['attendance-view']
+                'permissions' => ['attendance-list']
             ],
             'leave' => [
                 'name' => __('Leaves'),
-                'permissions' => ['leaves-view', 'leaves-create', 'leaves-approve-reject']
+                'permissions' => ['leaves-list', 'leaves-create', 'leaves-approve-reject']
             ],
             'role' => [
                 'name' => __('Roles Permissions'),
-                'permissions' => ['roles-permissions-view', 'roles-permissions-create', 'roles-permissions-edit', 'roles-permissions-delete']
+                'permissions' => ['roles-list', 'roles-create', 'roles-edit', 'roles-delete']
             ],
         ];
     }
@@ -62,35 +65,7 @@ class RolePermissionController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $roles = Role::all();
-
-            return DataTables::of($roles)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $action = '';
-                    if (auth()->user()->can('roles-permissions-edit')) {
-                        $action .= '
-                        <a href="' . route("roles-permissions.edit", $row->id) . '" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Edit") }}">
-                            <i class="fas fa-pen"></i>
-                        </a>';
-                    }
-
-                    if (auth()->user()->can('roles-permissions-delete')) {
-                        $action .= '
-                        <form class="d-inline" action="' . route("roles-permissions.destroy", $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="bottom" title="{{ __("Delete") }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                        ';
-                    }
-
-                    return $action;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return $this->rolePermissionService->getDatatables();
         }
 
         return view('roles-permissions.index');
